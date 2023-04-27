@@ -13,7 +13,7 @@
       "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/weather",
+      "DownstreamPathTemplate": "/api/pchealh",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -21,8 +21,19 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/api/weather",
+      "UpstreamPathTemplate": "/api/pchealh",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/pchealh/hub",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 5001
+        }
+      ],
+      "UpstreamPathTemplate": "/api/pchealh/hub"
     }
   ],
   "globalconfiguration": {

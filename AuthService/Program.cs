@@ -7,6 +7,7 @@ using Shed.CoreKit.WebApi;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using AuthService.RabbitMq;
+using AuthService.Hubs;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -54,6 +55,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddOcelot(builder.Configuration);
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,8 +64,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
+app.UseWebSockets();
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
@@ -73,7 +75,7 @@ app.UseEndpoints(endpoints => {
     name: "default",
     pattern: "{controller=UserLogin}/{action=Index}/{id?}");
 });
-
+app.MapHub<PcHealthHub>("/hub");
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

@@ -9,13 +9,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "5000:80" 
+      - "5000:80"
+      - "7000:443" 
 
-  testService:
+  pcHealth:
     image: testservice
     build:
       context: .
-      dockerfile: testService/Dockerfile
+      dockerfile: pcHealth/Dockerfile
     ports:
       - "5001:80" 
 

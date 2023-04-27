@@ -12,7 +12,7 @@ namespace mailService.Service.RabbitMq
             _connection = rabbitMqService.CreateChannel();
             _model = _connection.CreateModel();
             _model.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false);
-            _model.ExchangeDeclare("your.exchange.name", ExchangeType.Fanout, durable: true, autoDelete: false);
+            _model.ExchangeDeclare("mail", ExchangeType.Fanout, durable: true, autoDelete: false);
             _model.QueueBind(_queueName, "mail", string.Empty);
         }
         const string _queueName = "your.queue.name";

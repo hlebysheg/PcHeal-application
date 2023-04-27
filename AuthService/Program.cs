@@ -4,13 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using WordBook.Models;
 using Shed.CoreKit.WebApi;
-using testService.Controllers;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using AuthService.RabbitMq;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddTransient<IRabbitMqService, RabbitMqService>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -27,7 +29,7 @@ builder.Services.AddCors(options =>
                           });
 });
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
-        opts.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 //builder.Services.AddTransient<_userRep>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,7 +54,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddOcelot(builder.Configuration);
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

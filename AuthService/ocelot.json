@@ -1,11 +1,23 @@
 {
   "Routes": [
     {
+      "DownstreamPathTemplate": "/api/mail/verify",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "host.docker.internal",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/api/mail/verify",
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/weather",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
+          "Host": "host.docker.internal",
           "Port": 5001
         }
       ],
@@ -16,6 +28,6 @@
   "globalconfiguration": {
     "requestidkey": "ocrequestid",
     "administrationpath": "/administration",
-    "BaseUrl": "http://localhost:80"
+    "BaseUrl": "http://localhost:5000"
   }
 }

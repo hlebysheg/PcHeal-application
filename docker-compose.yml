@@ -5,7 +5,9 @@ services:
     image: ${DOCKER_REGISTRY-}authservice
     build:
       context: .
-      dockerfile: WordBook/Dockerfile
+      dockerfile: AuthService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5000:80" 
 
@@ -17,16 +19,32 @@ services:
     ports:
       - "5001:80" 
 
-  postgres_image:
-    image: postgres:latest
+  mailService:
+    image: mailservice
+    build:
+      context: .
+      dockerfile: mailService/Dockerfile
     ports:
-      - "5432"
-    restart: always
-    #volumes:
-    #  - db_volume:/var/lib/postgresql/data
-    #  - ./dbscripts/seed.sql :/docker-entrypoint-initdb.d/seed.sql
-    environment:
-      PGPORT: 5432
-      POSTGRES_USER: "authuser"
-      POSTGRES_PASSWORD: "auth"
-      POSTGRES_DB: "auth"
+      - "5002:80" 
+
+  rabbitmq: # login guest:guest
+    image: rabbitmq:3-management
+    hostname: "rabbitmq"
+    labels:
+      NAME: "rabbitmq"
+    ports:
+    - "4369:4369"
+    - "5671:5671"
+    - "5672:5672"
+    - "25672:25672"
+    - "15671:15671"
+    - "15672:15672"
+
+  #mssql:
+  #  image: "mcr.microsoft.com/mssql/server:2022-latest"
+  #  ports:
+  #    - "1433:1433"
+  #  container_name: mssql
+  #  environment:
+  #    - ACCEPT_EULA=y
+  #    - SA_PASSWORD=A&VeryComplex123Password

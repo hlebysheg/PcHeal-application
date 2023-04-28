@@ -22,6 +22,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 //app.UseWebSockets();
-//app.MapControllers();
+app.MapControllers();
 app.MapHub<PcHealthHub>("api/pchealh/hub");
 app.Run();

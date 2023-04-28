@@ -84,5 +84,14 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 }
 app.MapControllers();
-await app.UseOcelot();
+var configuration = new OcelotPipelineConfiguration
+{
+	PreErrorResponderMiddleware = async (ctx, next) =>
+	{
+        ctx.Request.Headers.Add("username", ctx.User?.Identity?.Name ?? "");
+		await next.Invoke();
+	}
+};
+
+await app.UseOcelot(configuration);
 app.Run();

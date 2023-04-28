@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "testService": {
+    "pcHealth": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

@@ -1,16 +1,30 @@
 version: '3.4'
 
 services:
+  reverseproxy:
+    image: reverseproxy
+    container_name: reverseproxy
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - 8000:80
+      - 443:443
+    restart: always
+
   authservice:
-    image: ${DOCKER_REGISTRY-}authservice
+    depends_on:
+      - reverseproxy
+    image: authservice
     build:
       context: .
       dockerfile: AuthService/Dockerfile
+    container_name: authservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5000:80"
-      - "7000:443" 
+    #ports:
+    #  - "5000:80"
+    #  - "7000:443" 
 
   pcHealth:
     image: testservice

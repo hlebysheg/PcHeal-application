@@ -1,9 +1,11 @@
 ﻿
-using OpenHardwareMonitor.Hardware;
+
+using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,10 +19,24 @@ using System.Windows.Shapes;
 
 namespace PcHealthClientApp
 {
-	/// <summary>
-	/// Логика взаимодействия для PcHealthWindow.xaml
-	/// </summary>
-	public partial class PcHealthWindow : Window
+    public class UpdateVisitor : IVisitor
+    {
+        public void VisitComputer(IComputer computer)
+        {
+            computer.Traverse(this);
+        }
+        public void VisitHardware(IHardware hardware)
+        {
+            hardware.Update();
+            foreach (IHardware subHardware in hardware.SubHardware) subHardware.Accept(this);
+        }
+        public void VisitSensor(ISensor sensor) { }
+        public void VisitParameter(IParameter parameter) { }
+    }
+    /// <summary>
+    /// Логика взаимодействия для PcHealthWindow.xaml
+    /// </summary>
+    public partial class PcHealthWindow : Window
 	{
 		private static readonly HttpClient client = new HttpClient();
 
@@ -46,30 +62,31 @@ namespace PcHealthClientApp
 			while(true)
 			{
 				InfoListner();
-				await Task.Delay(1000);
+				await Task.Delay(500);
 			}
 		}
-		private void InfoListner()
+
+        private void InfoListner()
 		{
 			c.Open();
-			c.CPUEnabled = true;
-			c.GPUEnabled = true;
-			c.MainboardEnabled = true;
+			c.Accept(new UpdateVisitor());
+            c.IsCpuEnabled = true;
+			c.IsGpuEnabled = true;
 			foreach (var hardware in c.Hardware)
 			{
 
-				if (hardware.HardwareType == HardwareType.CPU)
+                if (hardware.HardwareType == HardwareType.Cpu)
 				{
 					// only fire the update when found
 					hardware.Update();
 					CPUNameLabel.Content = hardware.Name;
 					// loop through the data
 					foreach (var sensor in hardware.Sensors)
-						if (sensor.SensorType == SensorType.Temperature && sensor.Name.Contains("CPU Package"))
+						if (sensor.SensorType == SensorType.Temperature)
 						{
 							// store
 							hardware.Update();
-							CPUTempLabel.Content = sensor.Value.GetValueOrDefault();
+							CPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##");
 							// print to console
 							System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 

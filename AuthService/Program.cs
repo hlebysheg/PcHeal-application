@@ -7,7 +7,6 @@ using Shed.CoreKit.WebApi;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using AuthService.RabbitMq;
-using AuthService.Hubs;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -75,7 +74,7 @@ app.UseEndpoints(endpoints => {
     name: "default",
     pattern: "{controller=UserLogin}/{action=Index}/{id?}");
 });
-app.MapHub<PcHealthHub>("/hub");
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

@@ -87,15 +87,23 @@ namespace PcHealthClientApp
 				Password = passwordTextBox.Password
 			};
 			var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
-			var response = await client.PostAsync(queuePath, content);
-			if (response.StatusCode == System.Net.HttpStatusCode.OK)
+			try
 			{
-				MessageBox.Show("Register succes");
+				var response = await client.PostAsync(queuePath, content);
+				if (response.StatusCode == System.Net.HttpStatusCode.OK)
+				{
+					MessageBox.Show("Register succes");
+				}
+				else
+				{
+					MessageBox.Show("Fail register");
+				}
 			}
-			else
+			catch
 			{
-				MessageBox.Show("Fail register");
+				MessageBox.Show("Fail connection");
 			}
+			
 		}
 		private void loginButton_Click(object sender, RoutedEventArgs e)
 		{

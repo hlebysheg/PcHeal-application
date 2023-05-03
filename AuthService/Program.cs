@@ -87,10 +87,10 @@ var configuration = new OcelotPipelineConfiguration
 {
 	PreErrorResponderMiddleware = async (ctx, next) =>
 	{
-        ctx.Request.Headers.Add("username", ctx.User?.Identity?.Name ?? "");
+        ctx.Request.Headers.Add("username", ctx.User?.Identity?.Name == "" ? "unknow": ctx.User?.Identity?.Name);
 		await next.Invoke();
 	}
 };
-
+app.UseWebSockets();
 await app.UseOcelot(configuration);
 app.Run();

@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PcHealthClientApp"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
+        Loaded="Window_Loaded"
         Title="PcHealthWindow" Height="450" Width="800">
     <Grid>
         <StackPanel Orientation="Horizontal" Margin="656,10,10,364">
@@ -16,12 +17,20 @@
             <Border BorderBrush="Black" BorderThickness="1">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Тип ЦП:" Width="63" FontSize="14"/>
+                        <Label Content="Модель ЦП:" Width="63" FontSize="14"/>
                         <Label Name="CPUNameLabel" Content="CpuName" FontSize="14"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Температура ЦП:" Width="134" FontSize="14"/>
                         <Label Name="CPUTempLabel" Content="CpuTemp" FontSize="14"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Нагрузка ЦП:" Width="134" FontSize="14"/>
+                        <Label Name="CPUUsageLabel" Content="CpuUsage" FontSize="14"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Частота ЦП:" Width="134" FontSize="14"/>
+                        <Label Name="CPUFrenqLabel" Content="CpuFrenq" FontSize="14"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Параметры видеокарты" Margin="0, 20, 30, 20" Width="437" FontSize="14" FontWeight="Bold"/>
@@ -34,9 +43,16 @@
                         <Label Content="Температура GPU:" Width="134" FontSize="14"/>
                         <Label Name="GPUTempLabel" Content="GPUTemp" FontSize="14"/>
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Нагрузка GPU:" Width="134" FontSize="14"/>
+                        <Label Name="GPUUsageLabel" Content="GPUTemp" FontSize="14"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>
+        <RadioButton Content="Connection Status" Name="ConnectionStatus" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Button Content="Test Notify" HorizontalAlignment="Left" Margin="703,346,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
+        <Button Content="Recconect" HorizontalAlignment="Left" Margin="703,313,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
 
     </Grid>
 </Window>

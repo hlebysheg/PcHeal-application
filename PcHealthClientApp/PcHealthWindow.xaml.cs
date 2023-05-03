@@ -1,18 +1,23 @@
 ﻿
 
 using LibreHardwareMonitor.Hardware;
+using Microsoft.AspNetCore.SignalR.Client;
+using PcHealthClientApp.Model.dto;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -40,39 +45,70 @@ namespace PcHealthClientApp
 	{
 		private static readonly HttpClient client = new HttpClient();
 
-		static Computer c = new Computer()
-		{
-			//RAMEnabled = true, // uncomment for RAM reports
-			//MainboardEnabled = true, // uncomment for Motherboard reports
-			//FanControllerEnabled = true, // uncomment for FAN Reports
-			//HDDEnabled = true, // uncomment for HDD Report
-		};
-		//Properties.Settings.Default["accesToken"] = str.AccesToken;
-		//		Properties.Settings.Default["refreshToken"] = str.RefreshToken;
-		//		Properties.Settings.Default["userName"] = body.Name;
-		//		Properties.Settings.Default.Save();
+		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+
+		private bool isOpenConnection = true;
+		
+		private HubConnection connection;
+
+		static Computer c = new Computer();
 		public PcHealthWindow()
 		{
 			InitializeComponent();
 			nameLabel.Content = Properties.Settings.Default["userName"] ?? "Alien";
+			string host = ConfigurationManager.AppSettings["hostUrl"].ToString();//hubHost  hostUrl
+			connection = new HubConnectionBuilder()
+				.WithUrl(host + "/api/pchealh/hub", opt =>
+				{
+					opt.AccessTokenProvider = () => Task.FromResult(Properties.Settings.Default["accesToken"].ToString());
+				})
+				.WithAutomaticReconnect()
+				.Build();
 			InfoUpdate();
+			connection.On<PCInfoMessage>("Receive", (info) =>
+			{
+				Dispatcher.Invoke(() =>
+				{
+					System.Diagnostics.Debug.WriteLine(info.CPUName);
+				});
+			});
+			connection.On<string>("notify", (info) =>
+			{
+				Dispatcher.Invoke(() =>
+				{
+					MessageBox.Show(info);
+				});
+			});
 		}
 		private async void InfoUpdate()
 		{
-			while(true)
+			//CancellationToken token = cancelTokenSource.Token;
+			//Task tsk = new Task(async () =>
+			//{
+			//	while (true)
+			//	{
+			//		await InfoListner();
+			//		await Task.Delay(500);
+			//	}
+			//}, token);
+			//tsk.Start();
+			while (isOpenConnection)
 			{
-				InfoListner();
+				await InfoListner();
 				await Task.Delay(500);
 			}
 		}
 
-        private void InfoListner()
+		private async Task InfoListner()
 		{
 			c.Open();
 			c.Accept(new UpdateVisitor());
             c.IsCpuEnabled = true;
 			c.IsGpuEnabled = true;
 			c.IsMotherboardEnabled = true;
+
+			PCInfoMessage message = new PCInfoMessage();
+
 			foreach (var hardware in c.Hardware)
 			{
 
@@ -80,6 +116,7 @@ namespace PcHealthClientApp
 				{
 					// only fire the update when found
 					CPUNameLabel.Content = hardware.Name;
+					message.CPUName = hardware.Name;
 					// loop through the data
 					foreach (var sensor in hardware.Sensors)
 						if (sensor.SensorType == SensorType.Temperature)
@@ -87,6 +124,7 @@ namespace PcHealthClientApp
 							// store
 							CPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##") + "°C";
 							// print to console
+							message.CPUTemp = sensor.Value.GetValueOrDefault();
 							System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 
 						}
@@ -95,6 +133,8 @@ namespace PcHealthClientApp
 							// store
 							//cpuUsage = sensor.Value.GetValueOrDefault();
 							// print to console
+							CPUUsageLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "%";
+							message.CPULoad = sensor.Value.GetValueOrDefault();
 							System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
 
 						}
@@ -112,6 +152,8 @@ namespace PcHealthClientApp
 							// store
 							//cpuFrequency = sensor.Value.GetValueOrDefault();
 							// print to console
+							CPUFrenqLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "GHz";
+							message.CPUFrenq = sensor.Value.GetValueOrDefault();
 							System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
 						}
 				}
@@ -121,23 +163,28 @@ namespace PcHealthClientApp
                     // only fire the update when found
                     hardware.Update();
                     GPUNameLabel.Content = hardware.Name;
-                    // loop through the data
-                    foreach (var sensor in hardware.Sensors)
+					message.GPUName = hardware.Name;
+					// loop through the data
+					foreach (var sensor in hardware.Sensors)
                         if (sensor.SensorType == SensorType.Temperature)
                         {
                             // store
                             hardware.Update();
                             GPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##");
-                            // print to console
-                            System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+							// print to console
+							message.GPUTemp = sensor.Value.GetValueOrDefault();
+
+							System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 
                         }
                         else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
                         {
-                            // store
-                            //cpuUsage = sensor.Value.GetValueOrDefault();
-                            // print to console
-                            System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+							// store
+							//cpuUsage = sensor.Value.GetValueOrDefault();
+							// print to console
+							GPUUsageLabel.Content = sensor.Value.GetValueOrDefault();
+							message.GPULoad = sensor.Value.GetValueOrDefault();
+							System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
 
                         }
                         else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
@@ -158,17 +205,52 @@ namespace PcHealthClientApp
                         }
                 }
             }
-			//CPUNameLabel.Content = "";
-			//GPUNameLabel.Content = "";
-			//CPUTempLabel.Content = "";
-			//GPUTempLabel.Content = "";
+			SendInfo(message);
 		}
 
+		private async void SendInfo(PCInfoMessage msg)
+		{
+			try
+			{
+				// отправка сообщения
+				await connection.InvokeAsync("Send", msg);
+				if(msg.GPUTemp > 70)
+				{
+					await connection.InvokeAsync("Notify", msg.CPUTemp);
+				}
+				ConnectionStatus.IsChecked = true;
+				ConnectionStatus.Content = "Подключено";
+			}
+			catch (Exception ex)
+			{
+				ConnectionStatus.IsChecked = false;
+				ConnectionStatus.Content = "Не подключено";
+			}
+		}
+
+		private async void Window_Loaded(object sender, RoutedEventArgs e)
+		{
+			await conect();
+		}
+		private async Task conect()
+		{
+			try
+			{
+				// подключемся к хабу
+				await connection.StartAsync();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
 		private async void Button_Click(object sender, RoutedEventArgs e)
 		{
 			Properties.Settings.Default["accesToken"] = "";
 			Properties.Settings.Default["refreshToken"] = "";
 			Properties.Settings.Default["userName"] = "";
+			Properties.Settings.Default.Save();
+			isOpenConnection = false;
+			await connection.StopAsync();
 			await Task.Delay(1000);
 			openLoginWindow();
 		}
@@ -184,9 +266,27 @@ namespace PcHealthClientApp
 		protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
 		{
 			//do my stuff before closing
-
-			base.OnClosing(e);
 			c.Close();
+			cancelTokenSource.Cancel();
+			isOpenConnection = false;
+			base.OnClosing(e);
+			
+		}
+
+		private async void Button_Click_1(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				await connection.InvokeAsync("Notify", 100);
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+		private async void Button_Click_2(object sender, RoutedEventArgs e)
+		{
+			await conect();
 		}
 	}
 }

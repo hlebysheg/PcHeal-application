@@ -22,14 +22,10 @@
         }
       ],
       "UpstreamPathTemplate": "/api/pchealh",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
+      "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/pchealh/hub",
+      "DownstreamPathTemplate": "/api/pchealh/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -37,7 +33,7 @@
           "Port": 5001
         }
       ],
-      "UpstreamPathTemplate": "/api/pchealh/hub"
+      "UpstreamPathTemplate": "/api/pchealh/{everything}"
     }
   ],
   "globalconfiguration": {

@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -45,14 +46,22 @@ namespace PcHealthClientApp
 	{
 		private static readonly HttpClient client = new HttpClient();
 
-		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
+        private static bool canNotifty = true;
+
+        private static System.Timers.Timer aTimer;
+
+        private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 
 		private bool isOpenConnection = true;
 		
 		private HubConnection connection;
 
 		static Computer c = new Computer();
-		public PcHealthWindow()
+        private static void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            canNotifty = true;
+        }
+        public PcHealthWindow()
 		{
 			InitializeComponent();
 			nameLabel.Content = Properties.Settings.Default["userName"] ?? "Alien";
@@ -60,6 +69,7 @@ namespace PcHealthClientApp
 			connection = new HubConnectionBuilder()
 				.WithUrl(host + "/api/pchealh/hub", opt =>
 				{
+					opt.Headers.Add("access_token", (Properties.Settings.Default["accesToken"].ToString()));
 					opt.AccessTokenProvider = () => Task.FromResult(Properties.Settings.Default["accesToken"].ToString());
 				})
 				.WithAutomaticReconnect()
@@ -79,7 +89,14 @@ namespace PcHealthClientApp
 					MessageBox.Show(info);
 				});
 			});
-		}
+            
+            aTimer = new System.Timers.Timer();
+            aTimer.Elapsed += OnTimedEvent;
+            aTimer.Interval = 10000 * 6 * 10;
+            aTimer.Enabled = true;
+        }
+
+        
 		private async void InfoUpdate()
 		{
 			//CancellationToken token = cancelTokenSource.Token;
@@ -125,7 +142,7 @@ namespace PcHealthClientApp
 							CPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##") + "°C";
 							// print to console
 							message.CPUTemp = sensor.Value.GetValueOrDefault();
-							System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 
 						}
 						else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
@@ -135,7 +152,7 @@ namespace PcHealthClientApp
 							// print to console
 							CPUUsageLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "%";
 							message.CPULoad = sensor.Value.GetValueOrDefault();
-							System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
 
 						}
 						else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
@@ -143,7 +160,7 @@ namespace PcHealthClientApp
 							// store
 							//cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
 							// print to console
-							System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
 
 
 						}
@@ -154,7 +171,7 @@ namespace PcHealthClientApp
 							// print to console
 							CPUFrenqLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "GHz";
 							message.CPUFrenq = sensor.Value.GetValueOrDefault();
-							System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
 						}
 				}
 
@@ -174,7 +191,7 @@ namespace PcHealthClientApp
 							// print to console
 							message.GPUTemp = sensor.Value.GetValueOrDefault();
 
-							System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 
                         }
                         else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
@@ -184,7 +201,7 @@ namespace PcHealthClientApp
 							// print to console
 							GPUUsageLabel.Content = sensor.Value.GetValueOrDefault();
 							message.GPULoad = sensor.Value.GetValueOrDefault();
-							System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+							//System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
 
                         }
                         else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
@@ -192,7 +209,7 @@ namespace PcHealthClientApp
                             // store
                             //cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
                             // print to console
-                            System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
+                            //System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
 
 
                         }
@@ -201,7 +218,7 @@ namespace PcHealthClientApp
                             // store
                             //cpuFrequency = sensor.Value.GetValueOrDefault();
                             // print to console
-                            System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
+                            //System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
                         }
                 }
             }
@@ -214,10 +231,12 @@ namespace PcHealthClientApp
 			{
 				// отправка сообщения
 				await connection.InvokeAsync("Send", msg);
-				if(msg.GPUTemp > 70)
+				if(msg.CPUTemp > 70 && canNotifty)
 				{
 					await connection.InvokeAsync("Notify", msg.CPUTemp);
-				}
+                    canNotifty=false;
+
+                }
 				ConnectionStatus.IsChecked = true;
 				ConnectionStatus.Content = "Подключено";
 			}

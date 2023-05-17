@@ -11,29 +11,6 @@
       ],
       "UpstreamPathTemplate": "/api/mail/verify",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/pchealh",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "host.docker.internal",
-          "Port": 5001
-        }
-      ],
-      "UpstreamPathTemplate": "/api/pchealh",
-      "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/pchealh/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "host.docker.internal",
-          "Port": 5001
-        }
-      ],
-      "UpstreamPathTemplate": "/api/pchealh/{everything}"
     }
   ],
   "globalconfiguration": {

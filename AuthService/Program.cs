@@ -7,6 +7,8 @@ using Shed.CoreKit.WebApi;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using AuthService.RabbitMq;
+using WordBook.Hubs;
+using Microsoft.Extensions.Options;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -47,6 +49,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration.GetSection("Jwt:Key").Value))
   
         };
+        opt.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Headers["access_token"];
+
+                // If the request is for our hub...
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/api/pchealh/hub")))
+                {
+                    // Read the token out of the query string
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
@@ -83,14 +102,7 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 }
 app.MapControllers();
-var configuration = new OcelotPipelineConfiguration
-{
-	PreErrorResponderMiddleware = async (ctx, next) =>
-	{
-        ctx.Request.Headers.Add("username", ctx.User?.Identity?.Name == "" ? "unknow": ctx.User?.Identity?.Name);
-		await next.Invoke();
-	}
-};
-app.UseWebSockets();
-await app.UseOcelot(configuration);
+
+app.MapHub<PcHealthHub>("api/pchealh/hub");
+await app.UseOcelot();
 app.Run();

@@ -22,17 +22,11 @@ services:
     container_name: authservice
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    #ports:
-    #  - "5000:80"
-    #  - "7000:443" 
-
-  pcHealth:
-    image: testservice
-    build:
-      context: .
-      dockerfile: pcHealth/Dockerfile
+      - ASPNETCORE_URLS=http://+:80
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNEN_USE_POLLING_FILE_WATHCER=true
     ports:
-      - "5001:80" 
+      - 5000:80
 
   mailService:
     image: mailservice

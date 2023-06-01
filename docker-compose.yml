@@ -15,7 +15,7 @@ services:
   authservice:
     depends_on:
       - reverseproxy
-    image: authservice
+    image: kandagor/authservice:v1.2
     build:
       context: .
       dockerfile: AuthService/Dockerfile
@@ -25,29 +25,31 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - DOTNET_RUNNING_IN_CONTAINER=true
       - DOTNEN_USE_POLLING_FILE_WATHCER=true
+      - DOTNET_VERSION=6.0.16
+      - ASPNET_VERSION=6.0.16
     ports:
       - 5000:80
 
-  mailService:
-    image: mailservice
-    build:
-      context: .
-      dockerfile: mailService/Dockerfile
-    ports:
-      - "5002:80" 
+  #mailService:
+  #  image: mailservice
+  #  build:
+  #    context: .
+  #    dockerfile: mailService/Dockerfile
+  #  ports:
+  #    - "5002:80" 
 
-  rabbitmq: # login guest:guest
-    image: rabbitmq:3-management
-    hostname: "rabbitmq"
-    labels:
-      NAME: "rabbitmq"
-    ports:
-    - "4369:4369"
-    - "5671:5671"
-    - "5672:5672"
-    - "25672:25672"
-    - "15671:15671"
-    - "15672:15672"
+  #rabbitmq: # login guest:guest
+  #  image: rabbitmq:3-management
+  #  hostname: "rabbitmq"
+  #  labels:
+  #    NAME: "rabbitmq"
+  #  ports:
+  #  - "4369:4369"
+  #  - "5671:5671"
+  #  - "5672:5672"
+  #  - "25672:25672"
+  #  - "15671:15671"
+  #  - "15672:15672"
 
   #mssql:
   #  image: "mcr.microsoft.com/mssql/server:2022-latest"

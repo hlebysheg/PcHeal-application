@@ -22,7 +22,17 @@ namespace mailService.Service.RabbitMq
                 HostName = rabbitConf.HostName
             };
             connection.DispatchConsumersAsync = true;
-            var channel = connection.CreateConnection();
+			IConnection channel = null;
+
+			try
+            {
+				channel = connection.CreateConnection();
+			}
+            catch
+            {
+                return null;
+            }
+            
             return channel;
         }
     }

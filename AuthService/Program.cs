@@ -9,6 +9,7 @@ using Ocelot.Middleware;
 using AuthService.RabbitMq;
 using WordBook.Hubs;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http.Connections;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -25,9 +26,10 @@ builder.Services.AddCors(options =>
                           policy =>
                           {
                               policy.AllowAnyOrigin()
-                                .WithOrigins("http://localhost:3000")
+                                .WithOrigins("http://localhost:8000", "http://localhost:5173")
                                 .AllowAnyHeader()
-                                .AllowAnyMethod();
+                                .AllowAnyMethod()
+                                .AllowCredentials();
                           });
 });
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
@@ -73,7 +75,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddOcelot(builder.Configuration);
-builder.Services.AddSignalR();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -83,7 +84,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-app.UseWebSockets();
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
@@ -102,7 +102,10 @@ using (var scope = app.Services.CreateScope())
     context.Database.Migrate();
 }
 app.MapControllers();
-
-app.MapHub<PcHealthHub>("api/pchealh/hub");
+app.UseWebSockets();
+app.MapHub<PcHealthHub>("api/pchealh/hub", opt =>
+{
+    opt.Transports = HttpTransportType.LongPolling;
+});
 await app.UseOcelot();
 app.Run();

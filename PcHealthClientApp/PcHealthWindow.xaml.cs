@@ -66,7 +66,7 @@ namespace PcHealthClientApp
 			InitializeComponent();
 			nameLabel.Content = Properties.Settings.Default["userName"] ?? "Alien";
 			string host = ConfigurationManager.AppSettings["hostUrl"].ToString();//hubHost  hostUrl
-			connection = new HubConnectionBuilder()
+			connection = new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder()
 				.WithUrl(host + "/api/pchealh/hub", opt =>
 				{
 					opt.Headers.Add("access_token", (Properties.Settings.Default["accesToken"].ToString()));

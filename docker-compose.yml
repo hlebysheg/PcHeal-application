@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   reverseproxy:
-    image: reverseproxy
+    image: reverseproxy:v1.2
     container_name: reverseproxy
     build:
       context: .
@@ -15,7 +15,7 @@ services:
   authservice:
     depends_on:
       - reverseproxy
-    image: kandagor/authservice:v1.2
+    image: kandagor/authservice:v1.4
     build:
       context: .
       dockerfile: AuthService/Dockerfile

@@ -10,6 +10,7 @@ using AuthService.RabbitMq;
 using WordBook.Hubs;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.HttpLogging;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -25,13 +26,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy(MyAllowSpecificOrigins,
                           policy =>
                           {
-                              policy.AllowAnyOrigin()
-                                .WithOrigins("http://localhost:8000", "http://localhost:5173")
+                              policy
+                                .WithOrigins("http://localhost:8000")// "http://127.0.0.1:5173"
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()
                                 .AllowCredentials();
                           });
 });
+
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
         opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 //builder.Services.AddTransient<_userRep>();
@@ -69,6 +71,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("sec-ch-ua");
+    logging.ResponseHeaders.Add("MyResponseHeader");
+    logging.MediaTypeOptions.AddText("application/javascript");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+
+});
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -86,6 +98,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseRouting();
+app.UseHttpLogging();
 app.UseAuthorization();
 app.UseCors(MyAllowSpecificOrigins);
 app.UseEndpoints(endpoints => {

@@ -16,6 +16,6 @@
   "globalconfiguration": {
     "requestidkey": "ocrequestid",
     "administrationpath": "/administration",
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://localhost:8000"
   }
 }

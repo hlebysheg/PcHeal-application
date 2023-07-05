@@ -8,6 +8,7 @@ namespace PcHealthClientApp.Model.dto
 {
 	public class PCInfoMessage
 	{
+		public string PcName { get; set; } = string.Empty;
 		public string CPUName{ get; set; }
 		public float CPUTemp { get; set; }
 		public float CPULoad { get; set; }

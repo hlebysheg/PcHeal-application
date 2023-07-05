@@ -48,6 +48,8 @@ namespace PcHealthClientApp
 
         private static bool canNotifty = true;
 
+		private readonly int criticalTemp = 86;
+
         private static System.Timers.Timer aTimer;
 
         private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
@@ -96,7 +98,11 @@ namespace PcHealthClientApp
             aTimer.Enabled = true;
         }
 
-        
+        private void ResetNotifyTimer()
+		{
+			aTimer.Stop();
+			aTimer.Start();
+		}
 		private async void InfoUpdate()
 		{
 			//CancellationToken token = cancelTokenSource.Token;
@@ -231,10 +237,11 @@ namespace PcHealthClientApp
 			{
 				// отправка сообщения
 				await connection.InvokeAsync("Send", msg);
-				if(msg.CPUTemp > 70 && canNotifty)
+				if(msg.CPUTemp > criticalTemp && canNotifty)
 				{
 					await connection.InvokeAsync("Notify", msg.CPUTemp);
-                    canNotifty=false;
+					ResetNotifyTimer();
+					canNotifty =false;
 
                 }
 				ConnectionStatus.IsChecked = true;

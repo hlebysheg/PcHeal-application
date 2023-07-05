@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   reverseproxy:
-    image: kandagor/reverseproxy:v1.3
+    image: kandagor/reverseproxy:v1.4
     container_name: reverseproxy
     build:
       context: .

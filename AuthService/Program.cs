@@ -27,12 +27,13 @@ builder.Services.AddCors(options =>
                           policy =>
                           {
                               policy
-                                .WithOrigins("http://localhost:8000")// "http://127.0.0.1:5173"
+                              .AllowAnyOrigin()
+                                //.WithOrigins("http://localhost:8000")// "http://127.0.0.1:5173"
                                 .AllowAnyHeader()
-                                .AllowAnyMethod()
-                                .AllowCredentials();
+                                .AllowAnyMethod();
                           });
 });
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
         opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));

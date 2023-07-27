@@ -9,7 +9,7 @@
         Title="LoginWindow" Height="450" Width="800">
     <Grid>
         <Grid Margin="10,10,10,10">
-            <Grid Margin="272,76,272,54" RenderTransformOrigin="0.486,0.509">
+            <Grid Margin="272,76,272,10" RenderTransformOrigin="0.486,0.509">
                 <Border BorderBrush="Gainsboro" BorderThickness="1" Margin="0,0,0,10">
                     <StackPanel Margin="0,10,0,10">
                         <StackPanel Height="82">
@@ -20,9 +20,9 @@
                             <Label Content="Password" HorizontalAlignment="Center" Margin="0,10,0,0" x:Name="passwordLabel" VerticalAlignment="Top" RenderTransformOrigin="0.517,1.831" Width="216" Height="30"/>
                             <PasswordBox x:Name="passwordTextBox"  VerticalContentAlignment="Center" Height="33" Width="216" FontSize="16" />
                         </StackPanel>
-                        <Grid Height="38" Margin="0, 10, 0, 0">
-                            <Button x:Name="loginButton" Content="Login" Width="105" HorizontalAlignment="Left" Margin="0, 0, 0, 0" Click="loginButton_Click"/>
-                            <Button x:Name="registerButton" Content="Create account" Width="105"  HorizontalAlignment="Right" Click="registerButton_Click"/>
+                        <Grid Height="79" Margin="0, 10, 0, 0">
+                            <Button x:Name="loginButton" Content="Login" VerticalAlignment="Top" VerticalContentAlignment="Center" Margin="34,0,29,0" Click="loginButton_Click"/>
+                            <Button x:Name="registerButton" Content="Create account"  VerticalContentAlignment="Center" VerticalAlignment="Bottom" Click="registerButton_Click" Margin="34,0,29,0"/>
                         </Grid>
                     </StackPanel>
                 </Border>

@@ -1,6 +1,6 @@
 ﻿namespace PcHealthClientApp.Model.dto
 {
-    public class TokenRequest
+    public class TokenDto
     {
         public string Token { get; set; }
         public string Name { get; set; }

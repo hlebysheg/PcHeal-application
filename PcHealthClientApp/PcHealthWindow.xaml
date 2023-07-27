@@ -6,53 +6,67 @@
         xmlns:local="clr-namespace:PcHealthClientApp"
         mc:Ignorable="d"
         ResizeMode="CanMinimize"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.FontWeight="Medium"
+        TextElement.FontSize="12"
+        FontFamily="{materialDesign:MaterialDesignFont}"
         Loaded="Window_Loaded"
         Title="PcHealthWindow" Height="450" Width="800">
     <Grid>
-        <StackPanel Orientation="Horizontal" Margin="656,10,10,364">
-            <Label Content="Login" Name="nameLabel" VerticalAlignment="Center"  />
-            <Button Content="Logout" VerticalAlignment="Center" Click="Button_Click" Width="60"/>
-        </StackPanel>
-        <Grid Margin="177,40,177,40">
+        <Grid  Margin="593,10,10,364">
+            <Label Content="Login" Name="nameLabel" HorizontalContentAlignment="Right" VerticalAlignment="Center" HorizontalAlignment="Left" Width="76"  />
+            <Button Content="Logout" VerticalContentAlignment="Center" VerticalAlignment="Center" Click="Button_Click" HorizontalAlignment="Right" Width="99"/>
+        </Grid>
+        <Grid Margin="177,56,177,10">
             <Border BorderBrush="Black" BorderThickness="1">
-                <StackPanel>
+                <StackPanel  DataContext="{Binding CurrentInfo}">
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Модель ЦП:" Width="63" FontSize="14"/>
-                        <Label Name="CPUNameLabel" Content="CpuName" FontSize="14"/>
+                        <TextBlock Text="Имя ПК" Width="218" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding PcName, UpdateSourceTrigger=PropertyChanged}"  Width="189" FontSize="16" FontWeight="Bold"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Температура ЦП:" Width="134" FontSize="14"/>
-                        <Label Name="CPUTempLabel" Content="CpuTemp" FontSize="14"/>
+                        <TextBlock Text="Параметры процессора" Margin="0 10 0 10"   Width="437" FontSize="16" FontWeight="Bold"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Нагрузка ЦП:" Width="134" FontSize="14"/>
-                        <Label Name="CPUUsageLabel" Content="CpuUsage" FontSize="14"/>
+                        <TextBlock Text="Модель ЦП:" Width="165" FontSize="16"/>
+                        <TextBlock Name="CPUNameLabel" Text="{Binding CPUName, UpdateSourceTrigger=PropertyChanged}" FontSize="16" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Частота ЦП:" Width="134" FontSize="14"/>
-                        <Label Name="CPUFrenqLabel" Content="CpuFrenq" FontSize="14"/>
+                        <TextBlock Text="Температура ЦП:" Width="165" FontSize="16"/>
+                        <TextBlock Name="CPUTempLabel" Text="{Binding CPUTemp.Value, StringFormat={}{0:#}°C, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Параметры видеокарты" Margin="0, 20, 30, 20" Width="437" FontSize="14" FontWeight="Bold"/>
+                        <TextBlock Text="Нагрузка ЦП:" Width="165" FontSize="16" Height="25"/>
+                        <TextBlock Name="CPUUsageLabel" Text="{Binding CPULoad, StringFormat={}{0:#}%, UpdateSourceTrigger=PropertyChanged}"  FontSize="16"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Модель GPU:" Width="134" FontSize="14"/>
-                        <Label Name="GPUNameLabel" Content="GPUTemp" FontSize="14"/>
+                        <TextBlock Text="Частота ЦП:" Width="165" FontSize="16"/>
+                        <TextBlock Name="CPUFrenqLabel" Text="{Binding CPUFrenq.Value, StringFormat={}{0:#}, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Температура GPU:" Width="134" FontSize="14"/>
-                        <Label Name="GPUTempLabel" Content="GPUTemp" FontSize="14"/>
+                        <TextBlock Text="Параметры видеокарты"  Margin="0, 10, 0, 10" Width="437" FontSize="16" FontWeight="Bold"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Label Content="Нагрузка GPU:" Width="134" FontSize="14"/>
-                        <Label Name="GPUUsageLabel" Content="GPUTemp" FontSize="14"/>
+                        <TextBlock Text="Модель GPU:" Width="165" FontSize="16"/>
+                        <TextBlock Name="GPUNameLabel" Text="{Binding GPUName, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Температура GPU:" Width="165" FontSize="16"/>
+                        <TextBlock Name="GPUTempLabel" Text="{Binding GPUTemp.Value, StringFormat={}{0:#}°C,UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Нагрузка GPU:" Width="165" FontSize="16"/>
+                        <TextBlock Name="GPUUsageLabel" Text="{Binding GPUUsage, StringFormat={}{0:#}%, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
         </Grid>
-        <RadioButton Content="Connection Status" Name="ConnectionStatus" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Button Content="Test Notify" HorizontalAlignment="Left" Margin="703,346,0,0" VerticalAlignment="Top" Click="Button_Click_1"/>
-        <Button Content="Recconect" HorizontalAlignment="Left" Margin="703,313,0,0" VerticalAlignment="Top" Click="Button_Click_2"/>
-
+        <ToggleButton  Name="ConnectionStatus" IsChecked="{Binding ConnectionStatus}"  HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Grid Margin="642,295,0,40">
+            <Button Content="Test Notify" VerticalContentAlignment="Center" HorizontalAlignment="Center"  VerticalAlignment="Top" Command="{Binding ButtonNotifyCommand}" Width="114" Grid.ColumnSpan="4"/>
+            <Button Content="Recconect" VerticalContentAlignment="Center" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Command="{Binding ButtonCommand}" Click="Button_Click_2" RenderTransformOrigin="0.298,0.444" Margin="0,35,0,0" Width="114" Grid.ColumnSpan="2"/>
+        </Grid>
     </Grid>
 </Window>

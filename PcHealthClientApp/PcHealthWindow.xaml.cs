@@ -3,6 +3,7 @@
 using LibreHardwareMonitor.Hardware;
 using Microsoft.AspNetCore.SignalR.Client;
 using PcHealthClientApp.Model.dto;
+using PcHealthClientApp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -66,6 +67,8 @@ namespace PcHealthClientApp
         public PcHealthWindow()
 		{
 			InitializeComponent();
+			DataContext = new PcInfoMsgViewModel();
+
 			nameLabel.Content = Properties.Settings.Default["userName"] ?? "Alien";
 			string host = ConfigurationManager.AppSettings["hostUrl"].ToString();//hubHost  hostUrl
 			connection = new Microsoft.AspNetCore.SignalR.Client.HubConnectionBuilder()
@@ -76,7 +79,7 @@ namespace PcHealthClientApp
 				})
 				.WithAutomaticReconnect()
 				.Build();
-			InfoUpdate();
+			//InfoUpdate();
 			connection.On<PCInfoMessage>("Receive", (info) =>
 			{
 				Dispatcher.Invoke(() =>
@@ -103,172 +106,166 @@ namespace PcHealthClientApp
 			aTimer.Stop();
 			aTimer.Start();
 		}
-		private async void InfoUpdate()
-		{
-			//CancellationToken token = cancelTokenSource.Token;
-			//Task tsk = new Task(async () =>
-			//{
-			//	while (true)
-			//	{
-			//		await InfoListner();
-			//		await Task.Delay(500);
-			//	}
-			//}, token);
-			//tsk.Start();
-			while (isOpenConnection)
-			{
-				await InfoListner();
-				await Task.Delay(500);
-			}
-		}
+		//private async void InfoUpdate()
+		//{
+		//	while (isOpenConnection)
+		//	{
+		//		await InfoListner();
+		//		await Task.Delay(500);
+		//	}
+		//}
 
-		private async Task InfoListner()
-		{
-			c.Open();
-			c.Accept(new UpdateVisitor());
-            c.IsCpuEnabled = true;
-			c.IsGpuEnabled = true;
-			c.IsMotherboardEnabled = true;
+		//private async Task InfoListner()
+		//{
+		//	c.Open();
+		//	c.Accept(new UpdateVisitor());
+		//	c.IsCpuEnabled = true;
+		//	c.IsGpuEnabled = true;
+		//	c.IsMotherboardEnabled = true;
 
-			PCInfoMessage message = new PCInfoMessage();
+		//	PCInfoMessage message = new PCInfoMessage();
 
-			foreach (var hardware in c.Hardware)
-			{
+		//	foreach (var hardware in c.Hardware)
+		//	{
 
-                if (hardware.HardwareType == HardwareType.Cpu)
-				{
-					// only fire the update when found
-					CPUNameLabel.Content = hardware.Name;
-					message.CPUName = hardware.Name;
-					// loop through the data
-					foreach (var sensor in hardware.Sensors)
-						if (sensor.SensorType == SensorType.Temperature)
-						{
-							// store
-							CPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##") + "°C";
-							// print to console
-							message.CPUTemp = sensor.Value.GetValueOrDefault();
-							//System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+		//		if (hardware.HardwareType == HardwareType.Cpu)
+		//		{
+		//			only fire the update when found
+		//			CPUNameLabel.Content = hardware.Name;
+		//			message.CPUName = hardware.Name;
+		//			loop through the data
+		//			foreach (var sensor in hardware.Sensors)
+		//				if (sensor.SensorType == SensorType.Temperature)
+		//				{
+		//					store
+		//					CPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##") + "°C";
+		//					print to console
+		//					message.CPUTemp = sensor.Value.GetValueOrDefault();
+		//					System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
 
-						}
-						else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
-						{
-							// store
-							//cpuUsage = sensor.Value.GetValueOrDefault();
-							// print to console
-							CPUUsageLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "%";
-							message.CPULoad = sensor.Value.GetValueOrDefault();
-							//System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+		//				}
+		//				else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
+		//				{
+		//					store
+		//				   cpuUsage = sensor.Value.GetValueOrDefault();
+		//					print to console
+		//					CPUUsageLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "%";
+		//					message.CPULoad = sensor.Value.GetValueOrDefault();
+		//					System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
 
-						}
-						else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
-						{
-							// store
-							//cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
-							// print to console
-							//System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
+		//				}
+		//				else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
+		//				{
+		//					store
+		//				   cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
+		//					print to console
+		//					System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
 
 
-						}
-						else if (sensor.SensorType == SensorType.Clock && sensor.Name.Contains("CPU Core #1"))
-						{
-							// store
-							//cpuFrequency = sensor.Value.GetValueOrDefault();
-							// print to console
-							CPUFrenqLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "GHz";
-							message.CPUFrenq = sensor.Value.GetValueOrDefault();
-							//System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
-						}
-				}
+		//				}
+		//				else if (sensor.SensorType == SensorType.Clock && sensor.Name.Contains("CPU Core #1"))
+		//				{
+		//					store
+		//				   cpuFrequency = sensor.Value.GetValueOrDefault();
+		//					print to console
+		//					CPUFrenqLabel.Content = sensor.Value.GetValueOrDefault().ToString("#.##") + "GHz";
+		//					message.CPUFrenq = sensor.Value.GetValueOrDefault();
+		//					System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
+		//				}
+		//		}
 
-                if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuIntel)
-                {
-                    // only fire the update when found
-                    hardware.Update();
-                    GPUNameLabel.Content = hardware.Name;
-					message.GPUName = hardware.Name;
-					// loop through the data
-					foreach (var sensor in hardware.Sensors)
-                        if (sensor.SensorType == SensorType.Temperature)
-                        {
-                            // store
-                            hardware.Update();
-                            GPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##");
-							// print to console
-							message.GPUTemp = sensor.Value.GetValueOrDefault();
+		//		if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd || hardware.HardwareType == HardwareType.GpuIntel)
+		//		{
+		//			only fire the update when found
 
-							//System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+		//			hardware.Update();
+		//			GPUNameLabel.Content = hardware.Name;
+		//			message.GPUName = hardware.Name;
+		//			loop through the data
+		//			foreach (var sensor in hardware.Sensors)
+		//				if (sensor.SensorType == SensorType.Temperature)
+		//				{
+		//					store
 
-                        }
-                        else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
-                        {
-							// store
-							//cpuUsage = sensor.Value.GetValueOrDefault();
-							// print to console
-							GPUUsageLabel.Content = sensor.Value.GetValueOrDefault();
-							message.GPULoad = sensor.Value.GetValueOrDefault();
-							//System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+		//					hardware.Update();
+		//					GPUTempLabel.Content = ((sensor.Value.GetValueOrDefault())).ToString("#.##");
+		//					print to console
+		//					message.GPUTemp = sensor.Value.GetValueOrDefault();
 
-                        }
-                        else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
-                        {
-                            // store
-                            //cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
-                            // print to console
-                            //System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
+		//					System.Diagnostics.Debug.WriteLine("cpuTemp: " + sensor.Value.GetValueOrDefault());
+
+		//				}
+		//				else if (sensor.SensorType == SensorType.Load && sensor.Name.Contains("CPU Total"))
+		//				{
+		//					store
+		//				   cpuUsage = sensor.Value.GetValueOrDefault();
+		//					print to console
+		//					GPUUsageLabel.Content = sensor.Value.GetValueOrDefault();
+		//					message.GPULoad = sensor.Value.GetValueOrDefault();
+		//					System.Diagnostics.Debug.WriteLine("cpuUsage: " + sensor.Value.GetValueOrDefault());
+
+		//				}
+		//				else if (sensor.SensorType == SensorType.Power && sensor.Name.Contains("CPU Package"))
+		//				{
+		//					store
+		//				   cpuPowerDrawPackage = sensor.Value.GetValueOrDefault();
+		//					print to console
+
+		//					System.Diagnostics.Debug.WriteLine("CPU Power Draw - Package: " + sensor.Value.GetValueOrDefault());
 
 
-                        }
-                        else if (sensor.SensorType == SensorType.Clock && sensor.Name.Contains("CPU Core #1"))
-                        {
-                            // store
-                            //cpuFrequency = sensor.Value.GetValueOrDefault();
-                            // print to console
-                            //System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
-                        }
-                }
-            }
-			SendInfo(message);
-		}
+		//				}
+		//				else if (sensor.SensorType == SensorType.Clock && sensor.Name.Contains("CPU Core #1"))
+		//				{
+		//					store
+		//				   cpuFrequency = sensor.Value.GetValueOrDefault();
+		//					print to console
 
-		private async void SendInfo(PCInfoMessage msg)
-		{
-			try
-			{
-				// отправка сообщения
-				await connection.InvokeAsync("Send", msg);
-				if(msg.CPUTemp > criticalTemp && canNotifty)
-				{
-					await connection.InvokeAsync("Notify", msg.CPUTemp);
-					ResetNotifyTimer();
-					canNotifty =false;
+		//					System.Diagnostics.Debug.WriteLine("cpuFrequency: " + sensor.Value.GetValueOrDefault());
+		//				}
+		//		}
+		//	}
+		//	SendInfo(message);
+		//}
 
-                }
-				ConnectionStatus.IsChecked = true;
-				ConnectionStatus.Content = "Подключено";
-			}
-			catch (Exception ex)
-			{
-				ConnectionStatus.IsChecked = false;
-				ConnectionStatus.Content = "Не подключено";
-			}
-		}
+		//private async void SendInfo(PCInfoMessage msg)
+		//{
+		//	try
+		//	{
+		//		// отправка сообщения
+		//		await connection.InvokeAsync("Send", msg);
+		//		if(msg.CPUTemp > criticalTemp && canNotifty)
+		//		{
+		//			await connection.InvokeAsync("Notify", msg.CPUTemp);
+		//			ResetNotifyTimer();
+		//			canNotifty =false;
+
+  //              }
+		//		ConnectionStatus.IsChecked = true;
+		//		ConnectionStatus.Content = "Подключено";
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		ConnectionStatus.IsChecked = false;
+		//		ConnectionStatus.Content = "Не подключено";
+		//	}
+		//}
 
 		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			await conect();
+			//await conect();
 		}
-		private async Task conect()
-		{
-			try
-			{
-				// подключемся к хабу
-				await connection.StartAsync();
-			}
-			catch (Exception ex)
-			{
-			}
-		}
+		//private async Task conect()
+		//{
+		//	try
+		//	{
+		//		// подключемся к хабу
+		//		await connection.StartAsync();
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//	}
+		//}
 		private async void Button_Click(object sender, RoutedEventArgs e)
 		{
 			Properties.Settings.Default["accesToken"] = "";
@@ -312,7 +309,7 @@ namespace PcHealthClientApp
 
 		private async void Button_Click_2(object sender, RoutedEventArgs e)
 		{
-			await conect();
+			//await conect();
 		}
 	}
 }

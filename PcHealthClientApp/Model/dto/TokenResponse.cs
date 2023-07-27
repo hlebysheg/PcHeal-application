@@ -2,7 +2,7 @@
 
 namespace PcHealthClientApp.Model.dto
 {
-    public class TokenResponse
+    public class RefreshTokenDto
     {
 		[JsonPropertyName("accesToken")]
 		public string AccesToken { get; set; }

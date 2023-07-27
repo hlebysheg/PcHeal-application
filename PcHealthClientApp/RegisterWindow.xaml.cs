@@ -80,7 +80,7 @@ namespace PcHealthClientApp
 			}
 
 			string queuePath = ConfigurationManager.AppSettings["hostUrl"].ToString() + "/api/UserLogin/reg";
-			var body = new RegisterRequest
+			var body = new RegisterDto
 			{
 				Email = emailTextBox.Text,
 				Name = loginTextBox.Text,

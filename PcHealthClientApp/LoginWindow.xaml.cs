@@ -1,4 +1,5 @@
 ﻿using PcHealthClientApp.Model.dto;
+using PcHealthClientApp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -28,12 +29,13 @@ namespace PcHealthClientApp
 		public LoginWindow()
 		{
 			InitializeComponent();
+			
 		}
 
 		private async void loginButton_Click(object sender, RoutedEventArgs e)
 		{
 			string queuePath = ConfigurationManager.AppSettings["hostUrl"].ToString() + "/api/UserLogin/log";
-			var body = new RegisterRequest
+			var body = new RegisterDto
 			{
 				Name = loginTextBox.Text,
 				Password = passwordTextBox.Password,
@@ -51,7 +53,7 @@ namespace PcHealthClientApp
 			using (var reader = new System.IO.StreamReader(await response.Content.ReadAsStreamAsync(), encoding))
 			{
 				string responseText = reader.ReadToEnd();
-				var str = JsonSerializer.Deserialize<TokenResponse>(responseText);
+				var str = JsonSerializer.Deserialize<RefreshTokenDto>(responseText);
 				
 				Properties.Settings.Default["accesToken"] = str.AccesToken;
 				Properties.Settings.Default["refreshToken"] = str.RefreshToken;

@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PcHealthClientApp
 {
@@ -45,7 +46,7 @@ namespace PcHealthClientApp
 			var response = await client.PostAsync(queuePath, content);
 			if (response.StatusCode != System.Net.HttpStatusCode.OK)
 			{
-				MessageBox.Show("fail login");
+				new MessageBoxCustom("Fail Login", MessageType.Confirmation, MessageButtons.Ok).ShowDialog();
 				return;
 			}
 			var encoding = ASCIIEncoding.ASCII;
@@ -60,7 +61,7 @@ namespace PcHealthClientApp
 				Properties.Settings.Default["userName"] = body.Name;
 				Properties.Settings.Default.Save();
 			}
-			MessageBox.Show("succes login");
+			bool? Result = new MessageBoxCustom("Succes Login", MessageType.Confirmation, MessageButtons.Ok).ShowDialog();
 			await Task.Delay(1000);
 			openMainWindow();
 

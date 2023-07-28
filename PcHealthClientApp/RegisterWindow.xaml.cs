@@ -92,16 +92,16 @@ namespace PcHealthClientApp
 				var response = await client.PostAsync(queuePath, content);
 				if (response.StatusCode == System.Net.HttpStatusCode.OK)
 				{
-					MessageBox.Show("Register succes");
+					bool? Result = new MessageBoxCustom("Register succes", MessageType.Confirmation, MessageButtons.Ok).ShowDialog();
 				}
 				else
 				{
-					MessageBox.Show("Fail register");
+					bool? Result = new MessageBoxCustom("Fail register, try another email or name", MessageType.Confirmation, MessageButtons.Ok).ShowDialog();
 				}
 			}
 			catch
 			{
-				MessageBox.Show("Fail connection");
+				bool? Result = new MessageBoxCustom("Connection error", MessageType.Error, MessageButtons.Ok).ShowDialog();
 			}
 			
 		}

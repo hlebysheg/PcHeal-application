@@ -1,4 +1,4 @@
-﻿using AuthService.RabbitMq;
+﻿using AuthService.Infrastructure.RabbitMq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

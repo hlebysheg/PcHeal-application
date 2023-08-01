@@ -23,6 +23,7 @@ namespace PcHealthClientApp.ViewModel
 	{
 		
 		private readonly DispatcherTimer _timer;
+		private readonly DispatcherTimer _saveTimer;
 		private CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
 		private PcInfo _currentInfo;
 		private bool _connectionStatus;
@@ -38,10 +39,12 @@ namespace PcHealthClientApp.ViewModel
 			ButtonNotifyCommand = new RelayCommand(async o => await Notify("ConnectButton"));
 			connection = HubConnectionFabric.Create();
 			conect("");
-			_timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+			_timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+			_saveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
 			_timer.Start();
-			InfoListner();
-			_timer.Tick += (o, e) => InfoListner();
+			_saveTimer.Start();
+			_saveTimer.Tick += async (o, e) => await SaveListner();
+			_timer.Tick += async (o, e) => await InfoListner();
 		}
 		public PcInfo CurrentInfo
 		{
@@ -76,6 +79,22 @@ namespace PcHealthClientApp.ViewModel
 			PcInfo info = PcInfoFabric.Create();
 			CurrentInfo = info;
 			SendInfo(info);
+		}
+
+		private async Task SaveListner()
+		{
+			//PCInfoMessage message = new PCInfoMessage();
+			PcInfo info = PcInfoFabric.Create();
+			CurrentInfo = info;
+			try
+			{
+				await connection.InvokeAsync("Save", new PCInfoMessage(info));
+				ConnectionStatus = true;
+			}
+			catch (Exception ex)
+			{
+				ConnectionStatus = false;
+			}
 		}
 
 		private async void SendInfo(PcInfo info)

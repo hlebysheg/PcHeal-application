@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AuthService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace WordBook.Models
 {
@@ -14,7 +15,10 @@ namespace WordBook.Models
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Role> Roles { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public DbSet<PcStatistic> PcStatistic { get; set; }
+
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             string adminRoleName = "admin";
             string userRoleName = "user";

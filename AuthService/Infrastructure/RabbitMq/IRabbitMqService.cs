@@ -1,4 +1,4 @@
-﻿namespace AuthService.RabbitMq
+﻿namespace AuthService.Infrastructure.RabbitMq
 {
     public interface IRabbitMqService
     {

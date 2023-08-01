@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Text;
 using System.Text.Json;
 
-namespace AuthService.RabbitMq
+namespace AuthService.Infrastructure.RabbitMq
 {
     public class RabbitMqService : IRabbitMqService
     {

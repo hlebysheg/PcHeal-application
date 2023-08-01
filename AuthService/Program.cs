@@ -6,11 +6,14 @@ using WordBook.Models;
 using Shed.CoreKit.WebApi;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using AuthService.RabbitMq;
 using WordBook.Hubs;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.HttpLogging;
+using AuthService.Infrastructure.RabbitMq;
+using AuthService.Infrastructure.MapProfile;
+using Ocelot.Values;
+using AuthService.Infrastructure.Service;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -28,7 +31,6 @@ builder.Services.AddCors(options =>
                           {
                               policy
                               .AllowAnyOrigin()
-                                //.WithOrigins("http://localhost:8000")// "http://127.0.0.1:5173"
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
                           });
@@ -86,6 +88,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
+builder.Services.AddAppService();
+builder.Services.AddAutoMapper((typeof(AppMappingProfile)));
 builder.Configuration.AddJsonFile("ocelot.json");
 builder.Services.AddOcelot(builder.Configuration);
 var app = builder.Build();

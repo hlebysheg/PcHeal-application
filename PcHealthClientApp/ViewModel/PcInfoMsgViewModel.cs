@@ -40,7 +40,7 @@ namespace PcHealthClientApp.ViewModel
 			connection = HubConnectionFabric.Create();
 			conect("");
 			_timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-			_saveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
+			_saveTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60 * 7) };
 			_timer.Start();
 			_saveTimer.Start();
 			_saveTimer.Tick += async (o, e) => await SaveListner();

@@ -14,12 +14,16 @@ using AuthService.Infrastructure.RabbitMq;
 using AuthService.Infrastructure.MapProfile;
 using Ocelot.Values;
 using AuthService.Infrastructure.Service;
+using Hangfire;
+using Hangfire.SQLite;
+using AuthService.Infrastructure.Jobs;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IRabbitMqService, RabbitMqService>();
+builder.Services.AddSingleton<IStatisticJob, StatisticJob>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -38,9 +42,25 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
-        opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-//builder.Services.AddTransient<_userRep>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));//HangfireConnection
+																						//builder.Services.AddTransient<_userRep>();
+																						// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddHangfire(hangfire =>
+{
+	hangfire.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+	hangfire.UseSimpleAssemblyNameTypeSerializer();
+	hangfire.UseRecommendedSerializerSettings();
+	hangfire.UseColouredConsoleLogProvider();
+    hangfire.UseSQLiteStorage(
+                 builder.Configuration.GetConnectionString("HangfireConnection"),
+				 new SQLiteStorageOptions()
+                 );
+	var server = new BackgroundJobServer(new BackgroundJobServerOptions
+	{
+		ServerName = "hangfire-test",
+	});
+});
+builder.Services.AddHangfireServer();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -111,7 +131,7 @@ app.UseEndpoints(endpoints => {
     name: "default",
     pattern: "{controller=UserLogin}/{action=Index}/{id?}");
 });
-
+app.UseHangfireDashboard("/dashboard");
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

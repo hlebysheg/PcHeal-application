@@ -23,7 +23,7 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IRabbitMqService, RabbitMqService>();
-builder.Services.AddSingleton<IStatisticJob, StatisticJob>();
+builder.Services.AddTransient<IStatisticJob, StatisticJob>();
 
 // Add services to the container.
 builder.Services.AddControllers();

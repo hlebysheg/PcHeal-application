@@ -11,10 +11,9 @@ namespace mailService.Service.RabbitMq
         {
             _connection = rabbitMqService.CreateChannel();
             _model = _connection.CreateModel();
-            _model.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false);
-            _model.ExchangeDeclare("mail", ExchangeType.Fanout, durable: true, autoDelete: false);
-            _model.QueueBind(_queueName, "mail", string.Empty);
-        }
+            Connection();
+
+		}
         const string _queueName = "your.queue.name";
         public async Task ReadMessgaes()
         {
@@ -30,8 +29,21 @@ namespace mailService.Service.RabbitMq
             _model.BasicConsume(_queueName, false, consumer);
             await Task.CompletedTask;
         }
+		public void Connection()
+		{
+            try {
+				_model.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false);
+				_model.ExchangeDeclare("mail", ExchangeType.Fanout, durable: true, autoDelete: false);
+				_model.QueueBind(_queueName, "mail", string.Empty);
+			}
+            catch(Exception ex)
+            {
 
-        public void Dispose()
+            }
+			
+		}
+
+		public void Dispose()
         {
             if (_model.IsOpen)
                 _model.Close();

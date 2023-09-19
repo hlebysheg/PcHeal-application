@@ -20,10 +20,9 @@ namespace AuthService.Infrastructure.RabbitMq
 
         public void SendMessage(string message)
         {
-            string host = _conf.GetValue<string>("rabbit:host") ?? "rabbitmq";
+            string ConnectionOption = _conf.GetValue<string>("rabbit:host") ?? "rabbitmq";
 
-            var factory = new ConnectionFactory() { HostName = host };
-
+			var factory = new ConnectionFactory() { Uri = new Uri(ConnectionOption)};
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {

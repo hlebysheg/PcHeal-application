@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IMailVerifyService, MailVerifyService>();
 builder.Services.AddSingleton<IRabbitMqService, RabbitMqService>();
 builder.Services.AddSingleton<IConsumerService, ConsumerService>();
-builder.Services.AddHostedService<ConsumerHostedService>();
+//builder.Services.AddHostedService<ConsumerHostedService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
